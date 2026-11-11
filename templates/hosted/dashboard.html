@@ -1,0 +1,100 @@
+{% extends 'hosted/base.html' %}
+{% block title %}Dashboard - ProjectPOS Hosted{% endblock %}
+{% block content %}
+<div class="card">
+  <h2>Hosted Account Dashboard</h2>
+  <p class="muted">Manage store access context for the sync server. POS/mobile clients will authenticate via API and sync tenant-scoped data.</p>
+  <p class="muted">API base: <code>/api/v1/</code> | Auth: <code>/api/v1/auth/login/</code>, <code>/api/v1/auth/signup/</code>, <code>/api/v1/auth/me/</code></p>
+</div>
+
+<div class="card">
+  <h3>Your Stores</h3>
+  {% if stores %}
+    <form method="get">
+      <label for="store">Select store</label>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <select id="store" name="store" style="max-width:420px;">
+          {% for s in stores %}
+            <option value="{{ s.id }}" {% if selected_store_id == s.id|stringformat:'s' %}selected{% endif %}>{{ s.name }} ({{ s.slug }})</option>
+          {% endfor %}
+        </select>
+        <button type="submit">View</button>
+      </div>
+    </form>
+  {% else %}
+    <p class="muted">No active store memberships found.</p>
+  {% endif %}
+</div>
+
+{% if selected_membership %}
+<div class="card">
+  <h3>Store Access & Permissions</h3>
+  <table>
+    <tr><th>Store</th><td>{{ selected_membership.store.name }} ({{ selected_membership.store.slug }})</td></tr>
+    <tr><th>Store ID</th><td><code>{{ selected_membership.store.id }}</code></td></tr>
+    <tr><th>Your Role</th><td>{{ selected_membership.role }}</td></tr>
+    <tr><th>Active</th><td>{{ selected_membership.is_active }}</td></tr>
+    <tr><th>Effective Permissions</th><td><code>{{ selected_effective_permissions|join:', ' }}</code></td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h3>Synced Data (Server)</h3>
+  <p class="muted">These counts show records currently stored on the sync server for this store (after POS sync). This hosted dashboard does not edit POS records; it shows connection/sync status and stored data counts.</p>
+  {% if synced_counts %}
+  <table>
+    <tr><th>Products</th><td>{{ synced_counts.products|default:0 }}</td></tr>
+    <tr><th>Sales / Bills</th><td>{{ synced_counts.sales|default:0 }}</td></tr>
+    <tr><th>Udhar Records</th><td>{{ synced_counts.udhar|default:0 }}</td></tr>
+    <tr><th>Settings Records</th><td>{{ synced_counts.settings|default:0 }}</td></tr>
+    <tr><th>Custom Columns</th><td>{{ synced_counts.custom_columns|default:0 }}</td></tr>
+    <tr><th>Discount Rules</th><td>{{ synced_counts.discount_rules|default:0 }}</td></tr>
+  </table>
+  <p class="muted" style="margin-top:8px;">For detailed records, use API endpoints (e.g. <code>/api/v1/products/</code>, <code>/api/v1/sales/</code>, <code>/api/v1/udhar/</code>, <code>/api/v1/settings/</code>) with your token and <code>?store_id={{ selected_membership.store.id }}</code>.</p>
+  {% else %}
+  <p class="muted">No synced data summary available yet.</p>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h3>Registered Devices / Clients</h3>
+  {% if devices %}
+    <table>
+      <thead><tr><th>Name</th><th>Type</th><th>Client Identifier</th><th>Active</th><th>Last Sync</th></tr></thead>
+      <tbody>
+      {% for d in devices %}
+        <tr>
+          <td>{{ d.name }}</td>
+          <td>{{ d.device_type }}</td>
+          <td><code>{{ d.client_identifier|default:'-' }}</code></td>
+          <td>{{ d.is_active }}</td>
+          <td>{{ d.last_sync_at|default:'-' }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="muted">No devices registered yet. POS/mobile clients can register via <code>POST /api/v1/devices/register/</code>.</p>
+  {% endif %}
+</div>
+
+{% if members %}
+<div class="card">
+  <h3>Store Members (visible to users with user management access)</h3>
+  <table>
+    <thead><tr><th>User</th><th>Role</th><th>Active</th><th>Permissions</th></tr></thead>
+    <tbody>
+      {% for m in members %}
+      <tr>
+        <td>{{ m.user.username }}</td>
+        <td>{{ m.role }}</td>
+        <td>{{ m.is_active }}</td>
+        <td><code>{{ m.permissions }}</code></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+{% endif %}
+{% endblock %}

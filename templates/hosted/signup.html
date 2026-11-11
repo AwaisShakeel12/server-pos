@@ -1,0 +1,55 @@
+{% extends 'hosted/base.html' %}
+{% block title %}Signup - ProjectPOS Hosted{% endblock %}
+{% block content %}
+<div class="card" style="max-width:720px; margin:0 auto;">
+  <h2>Create Hosted Account & Store</h2>
+  <p class="muted">Create an account for the hosted sync server. This also creates your store (tenant) and owner/admin membership.</p>
+  <form method="post">
+    {% csrf_token %}
+    <div class="grid">
+      <div>
+        <label for="username">Username *</label>
+        <input id="username" name="username" value="{{ form.username|default:'' }}" required>
+      </div>
+      <div>
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" value="{{ form.email|default:'' }}">
+      </div>
+      <div>
+        <label for="password">Password *</label>
+        <input id="password" name="password" type="password" required>
+      </div>
+      <div>
+        <label for="password_confirm">Confirm Password *</label>
+        <input id="password_confirm" name="password_confirm" type="password" required>
+      </div>
+    </div>
+
+    <hr style="margin:18px 0; border:none; border-top:1px solid #e5e7eb;">
+
+    <div class="grid">
+      <div>
+        <label for="store_name">Store Name *</label>
+        <input id="store_name" name="store_name" value="{{ form.store_name|default:'' }}" required>
+      </div>
+      <div>
+        <label for="store_slug">Store Slug *</label>
+        <input id="store_slug" name="store_slug" value="{{ form.store_slug|default:'' }}" placeholder="my-store" required>
+      </div>
+      <div>
+        <label for="phone">Store Phone</label>
+        <input id="phone" name="phone" value="{{ form.phone|default:'' }}">
+      </div>
+      <div>
+        <label for="address">Store Address</label>
+        <input id="address" name="address" value="{{ form.address|default:'' }}">
+      </div>
+    </div>
+
+    <div style="margin-top:16px;">
+      <button type="submit">Create account</button>
+      <a class="btn secondary" href="{% url 'hosted-login' %}">Back to login</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
